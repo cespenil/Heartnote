@@ -51,7 +51,7 @@ export default function ReportPage() {
     )
   }
 
-  const safeRisk = (['LOW','MODERATE','HIGH'] as const).includes(report.risk_level as never) ? report.risk_level : 'LOW'
+  const safeRisk = (['LOW','MODERATE','HIGH'] as const).includes(report.risk_level as 'LOW' | 'MODERATE' | 'HIGH') ? report.risk_level : ('LOW' as const)
   const rc  = { LOW: 'var(--risk-low)',        MODERATE: 'var(--risk-moderate)',        HIGH: 'var(--risk-high)'        }[safeRisk] ?? 'var(--risk-low)'
   const rbg = { LOW: 'var(--risk-low-bg)',     MODERATE: 'var(--risk-moderate-bg)',     HIGH: 'var(--risk-high-bg)'     }[safeRisk] ?? 'var(--risk-low-bg)'
   const rb  = { LOW: 'var(--risk-low-border)', MODERATE: 'var(--risk-moderate-border)', HIGH: 'var(--risk-high-border)' }[safeRisk] ?? 'var(--risk-low-border)'
