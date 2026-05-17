@@ -1,6 +1,6 @@
 import Groq from "groq-sdk";
 import { NextRequest, NextResponse } from "next/server";
-import { buildSystemPrompt, buildEscalatedSystemPrompt, DISCLAIMER } from "@/lib/system-prompt";
+import { buildSystemPrompt, DISCLAIMER } from "@/lib/system-prompt";
 import type { ReportRequest, ReportResponse } from "@/lib/schema";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -56,14 +56,10 @@ export async function POST(req: NextRequest) {
         ]
       : [{ type: "text", text: symptomPayload }];
 
-    const systemPrompt = body.escalated
-      ? buildEscalatedSystemPrompt(body.dismissal_reason)
-      : buildSystemPrompt();
-
     const completion = await groq.chat.completions.create({
       model: hasImage ? VISION_MODEL : TEXT_MODEL,
       messages: [
-        { role: "system", content: systemPrompt },
+        { role: "system", content: buildSystemPrompt() },
         { role: "user", content: userContent },
       ],
       response_format: { type: "json_object" },
