@@ -23,6 +23,8 @@ export interface ReportRequest {
   face_image_base64?: string;
   days_postpartum?: number;
   prior_conditions?: string[];
+  escalated?: boolean;
+  dismissal_reason?: string;
 }
 
 export const FACE_SYMPTOMS_ENUM = [
