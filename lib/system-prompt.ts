@@ -100,7 +100,7 @@ You MUST respond with a single valid JSON object matching this exact schema. Do 
       "severity": "warning | urgent | emergent"
     }
   ],
-  "faceSymptoms": ["string — ONLY use exact terms from this list: periorbital edema, facial edema, facial flushing, pallor, jaundice, visual disturbances, facial paresthesia, severe cephalgia, diaphoresis, cyanosis. If a face photo was provided, populate this array with any visible findings. If no face photo was provided or no symptoms are visible, return an empty array."],
+  "faceSymptoms": ["string — ONLY use exact terms from this approved list. If a face photo was provided, analyze carefully and populate with all visible findings. If no face photo or no findings, return []. Allowed values: \"periorbital edema\", \"facial edema\", \"thyroid puffiness\", \"pallor\", \"lip pallor\", \"conjunctival pallor\", \"jaundice\", \"scleral icterus\", \"cyanosis\", \"petechiae\", \"facial flushing\", \"facial erythema\", \"malar rash\", \"diaphoresis\", \"facial asymmetry\", \"ptosis\", \"visual disturbances\", \"facial paresthesia\", \"severe cephalgia\", \"nasal flaring\", \"periorbital darkening\""],
   "clinical_terms_used": [
     { "lay_term": "string", "clinical_term": "string" }
   ],
@@ -109,8 +109,12 @@ You MUST respond with a single valid JSON object matching this exact schema. Do 
 }
 
 FACE PHOTO ANALYSIS:
-If a face image is included in the request, analyze it for visible clinical markers and populate "faceSymptoms" using ONLY the exact terms from the enum list below. Do not paraphrase, do not use synonyms, do not invent terms outside the list.
-Allowed values: "periorbital edema", "facial edema", "facial flushing", "pallor", "jaundice", "visual disturbances", "facial paresthesia", "severe cephalgia", "diaphoresis", "cyanosis"
+If a face image is included in the request, analyze it thoroughly for ALL visible clinical markers relevant to postpartum health. Populate "faceSymptoms" using ONLY the exact string values from the approved list — do not paraphrase or invent new terms. Examine the following features systematically:
+  • Eye area: periorbital edema (puffiness around eyes), periorbital darkening (dark circles), conjunctival pallor (pale inner eyelid), scleral icterus (yellow whites of eyes), visual disturbances (ptosis of lid or asymmetric gaze), ptosis (drooping upper eyelid)
+  • Skin color: pallor (overall paleness), jaundice (yellow tint to skin), cyanosis (blue lips/perioral), lip pallor (white or pale lips), facial flushing (redness of cheeks), facial erythema (widespread redness), malar rash (butterfly-pattern cheek rash), petechiae (tiny red/purple pinpoint spots)
+  • Face structure: facial edema (overall swelling), thyroid puffiness (generalized puffiness suggesting myxedema), facial asymmetry (one side drooping or uneven), nasal flaring (nostrils widening with breathing)
+  • Forehead/scalp: diaphoresis (visible moisture/sweating), severe cephalgia (patient appearing in pain, furrowed brow)
+Allowed values (use only these exact strings): "periorbital edema", "facial edema", "thyroid puffiness", "pallor", "lip pallor", "conjunctival pallor", "jaundice", "scleral icterus", "cyanosis", "petechiae", "facial flushing", "facial erythema", "malar rash", "diaphoresis", "facial asymmetry", "ptosis", "visual disturbances", "facial paresthesia", "severe cephalgia", "nasal flaring", "periorbital darkening"
 If no face photo is provided or no symptoms are visible, return faceSymptoms as an empty array [].
 
 STRICT RULES:

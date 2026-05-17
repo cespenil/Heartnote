@@ -28,14 +28,25 @@ export interface ReportRequest {
 export const FACE_SYMPTOMS_ENUM = [
   "periorbital edema",
   "facial edema",
-  "facial flushing",
+  "thyroid puffiness",
   "pallor",
+  "lip pallor",
+  "conjunctival pallor",
   "jaundice",
+  "scleral icterus",
+  "cyanosis",
+  "petechiae",
+  "facial flushing",
+  "facial erythema",
+  "malar rash",
+  "diaphoresis",
+  "facial asymmetry",
+  "ptosis",
   "visual disturbances",
   "facial paresthesia",
   "severe cephalgia",
-  "diaphoresis",
-  "cyanosis",
+  "nasal flaring",
+  "periorbital darkening",
 ] as const;
 
 export type FaceSymptom = typeof FACE_SYMPTOMS_ENUM[number];

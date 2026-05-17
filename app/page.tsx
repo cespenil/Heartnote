@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { WebcamCapture } from '@/components/WebcamCapture'
 import { BodyMap } from '@/components/BodyMap'
+import { FaceAnnotation } from '@/components/FaceAnnotation'
 import { ReportSkeleton } from '@/components/SkeletonLoader'
 import { LoadingOverlay } from '@/components/LoadingOverlay'
 import type { BodyMapEntry } from '@/components/BodyMap'
@@ -67,9 +68,11 @@ export default function Home() {
     setPriorConditions(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])
 
   const generateReport = async (skipFace: boolean) => {
+    console.log('🚀 [generateReport] Starting...', { skipFace, voiceWords: voiceInput.trim().split(/\s+/).length, bodyRegions: bodyEntries.map(e => e.region), hasFaceImage: !!capturedImage })
     setStep('generating')
     setError(null)
     const timeout = setTimeout(() => {
+      console.warn('⏰ [generateReport] 30s timeout hit')
       setError('This is taking longer than expected — please try again.')
       setStep('describe')
     }, 30_000)
@@ -83,18 +86,27 @@ export default function Home() {
         ...(daysPostpartum && { days_postpartum: parseInt(daysPostpartum) }),
         prior_conditions: priorConditions,
       }
+      console.log('📤 [generateReport] Sending to /api/generate-report', { hasImage, bodyMapCount: bodyEntries.length, priorConditions })
       const res = await fetch('/api/generate-report', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
       })
       clearTimeout(timeout)
-      if (!res.ok) { const err = await res.json(); throw new Error(err.error || 'Failed to generate report.') }
+      console.log('📥 [generateReport] Response status:', res.status, res.statusText)
+      if (!res.ok) {
+        const err = await res.json()
+        console.error('❌ [generateReport] API error response:', err)
+        throw new Error(err.error || 'Failed to generate report.')
+      }
       const data = await res.json()
+      console.log('✅ [generateReport] Success:', { risk_level: data.risk_level, red_flags: data.red_flags?.length ?? 0 })
       sessionStorage.setItem('heartnote_report', JSON.stringify(data))
       if (hasImage && capturedImage) sessionStorage.setItem('heartnote_face_image', capturedImage)
       else sessionStorage.removeItem('heartnote_face_image')
+      console.log('➡️ [generateReport] Navigating to /report')
       router.push('/report')
     } catch (e) {
       clearTimeout(timeout)
+      console.error('💥 [generateReport] Caught error:', e)
       setError(e instanceof Error ? e.message : 'Something went wrong.')
       setStep('describe')
     }
@@ -411,14 +423,25 @@ export default function Home() {
           />
 
           <div className="card" style={{ borderLeft: '3px solid var(--pink)' }}>
-            <WebcamCapture onCapture={img => setCapturedImage(img)} />
-            {capturedImage && (
-              <div style={{
-                marginTop: 14, padding: '10px 14px', borderRadius: 10,
-                background: 'var(--risk-low-bg)', border: '1px solid var(--risk-low-border)',
-                fontSize: 14, color: 'var(--risk-low)', fontWeight: 600,
-              }}>
-                ✓ Photo captured — ready for analysis
+            {!capturedImage ? (
+              <WebcamCapture onCapture={img => setCapturedImage(img)} />
+            ) : (
+              <div>
+                <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--risk-low)' }}>
+                    ✓ Photo captured — running face analysis…
+                  </div>
+                  <button
+                    onClick={() => setCapturedImage(null)}
+                    style={{
+                      background: 'none', border: '1px solid var(--border)', borderRadius: 8,
+                      color: 'var(--text-muted)', fontSize: 12, padding: '4px 10px', cursor: 'pointer',
+                    }}
+                  >
+                    Retake
+                  </button>
+                </div>
+                <FaceAnnotation imageSrc={capturedImage} symptoms={[]} />
               </div>
             )}
           </div>
